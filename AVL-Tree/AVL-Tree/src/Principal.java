@@ -6,12 +6,11 @@ public class Principal {
     private final ArbolAVL arbol = new ArbolAVL();
 
     public static void main(String[] args) {
-        new Principal().probar();
-        new Principal().iniciar();
+        Principal principal = new Principal();
     }
 
     private void probar() {
-        arbol.insertar(10);   // antes: ingresar_nodo
+        arbol.insertar(10);
         arbol.insertar(4);
         arbol.insertar(7);
         arbol.insertar(16);
@@ -54,7 +53,6 @@ public class Principal {
     }
 
     private void menuRecorridos() {
-        // Mapeo int → enum para no tocar el menú
         var tipos = new ArbolAVL.Recorrido[]{
                 null,
                 ArbolAVL.Recorrido.PREORDEN,
@@ -73,20 +71,21 @@ public class Principal {
                     4. Volver
                     """);
 
-            if (op >= 1 && op <= 3) arbol.recorrer(tipos[op]);  // ← antes: recorridos(op)
+            if (op >= 1 && op <= 3) arbol.recorrer(tipos[op]);
         } while (op != 4);
     }
 
     private void buscarElemento() {
         int num = pedirNumero("Ingresa un valor a buscar:");
-        var mensaje = arbol.buscar(num)             // ← ya devuelve Optional<Nodo> directo
+        var mensaje = arbol.buscar(num)
                 .map(n -> "El dato " + num + " SÍ existe.")
                 .orElse("El dato " + num + " NO existe.");
         mostrar(mensaje);
     }
 
     private void eliminarElemento() {
-        mostrar("Eliminación aún no implementada.");
+        int num = pedirNumero("Ingresa un valor a eliminar:");
+        var mensaje = arbol.eliminar(num);
     }
 
     private void mostrarOperaciones() {
@@ -105,7 +104,7 @@ public class Principal {
 
     private int contarPorCondicion(Nodo nodo, IntPredicate condicion) {
         if (nodo == null) return 0;
-        int contador = condicion.test(nodo.getValor()) ? 1 : 0;  // ← antes: getNumero()
+        int contador = condicion.test(nodo.getValor()) ? 1 : 0;
         return contador
                 + contarPorCondicion(nodo.izquierda, condicion)
                 + contarPorCondicion(nodo.derecha, condicion);
@@ -123,28 +122,3 @@ public class Principal {
         JOptionPane.showMessageDialog(null, mensaje);
     }
 }
-/* 
-    int contador_nega = 0;
-    int contador_pos = 0;
-    private void positivos(Nodo raiz_actual) {
-        if (raiz_actual != null) {
-            if(raiz_actual.getNumero()>0){
-                contador_pos++;
-            }
-            positivos(raiz_actual.izquierda);
-            positivos(raiz_actual.derecha);
-            
-        }
-    }
-    private int nega(Nodo raiz_actual) {
-        if (raiz_actual != null) {
-            if(raiz_actual.getNumero()>0){
-                contador_nega++;
-            }
-            positivos(raiz_actual.izquierda);
-            positivos(raiz_actual.derecha);
-            
-        }
-       return contador_nega;
-    }
-*/

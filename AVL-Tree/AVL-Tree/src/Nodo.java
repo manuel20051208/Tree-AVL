@@ -1,5 +1,5 @@
 public class Nodo {
-    private final int valor;
+    private int valor;
     Nodo izquierda;
     Nodo derecha;
     int altura;
@@ -11,6 +11,10 @@ public class Nodo {
     }
 
     public int getValor() { return valor; }
+
+    public void setValor(int valor) {
+        this.valor = valor;
+    }
 
     @Override
     public String toString() {

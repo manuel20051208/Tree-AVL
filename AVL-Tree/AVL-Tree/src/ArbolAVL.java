@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -136,5 +137,91 @@ public class ArbolAVL {
             case -1 -> buscar(actual.izquierda, valor);
             default -> buscar(actual.derecha, valor);
         };
+    }
+
+    public boolean eliminar(int numero) {
+        Nodo nodoEliminar;
+        if (buscar(numero).isPresent()) {
+            nodoEliminar = buscar(numero).get();
+            return eliminar(nodoEliminar, raiz);
+        }
+        return false;
+    }
+
+    private boolean eliminar(Nodo nodoEliminar, Nodo lado) {
+        if (lado == null || nodoEliminar == null) return false;
+
+        //caso 1
+        if (lado == nodoEliminar && lado.izquierda == null && lado.derecha == null) {
+            raiz = null;
+            return true;
+        }
+
+        if (lado.izquierda == nodoEliminar && nodoEliminar.izquierda == null && nodoEliminar.derecha == null) {
+            lado.izquierda = null;
+            return true;
+        }
+
+        if (lado.derecha == nodoEliminar && nodoEliminar.izquierda == null && nodoEliminar.derecha == null) {
+            lado.derecha = null;
+            return true;
+        }
+
+        //caso 2
+        if (lado == nodoEliminar && nodoEliminar.izquierda != null && nodoEliminar.derecha == null) {
+            Nodo hijoTemp = nodoEliminar.izquierda;
+            nodoEliminar.setValor(hijoTemp.getValor());
+            nodoEliminar.izquierda = hijoTemp.izquierda;
+            nodoEliminar.derecha = hijoTemp.derecha;
+            return true;
+        }
+
+        if (lado == nodoEliminar && nodoEliminar.izquierda == null) {
+            Nodo hijo = nodoEliminar.derecha;
+            nodoEliminar.setValor(hijo.getValor());
+            nodoEliminar.izquierda = hijo.izquierda;
+            nodoEliminar.derecha = hijo.derecha;
+            return true;
+        }
+
+
+        //caso 3
+        if (lado == nodoEliminar) {
+            int op = Integer.parseInt(JOptionPane.showInputDialog("""
+                    1. Predecesor
+                    2. Sucesor
+                    """));
+
+            if (op == 1) {
+                lado = predecesor(lado.izquierda);
+            } else {
+                lado = sucesor(lado.derecha);
+            }
+
+            nodoEliminar.setValor(lado.getValor());
+            nodoEliminar = lado;
+            lado = raiz;
+            eliminar(nodoEliminar, lado);
+            return true;
+        }
+
+
+        eliminar(nodoEliminar, lado.derecha);
+        eliminar(nodoEliminar, lado.izquierda);
+        return true;
+    }
+
+    public Nodo predecesor(Nodo raiz_actual) {
+        if (raiz_actual.derecha == null) {
+            return raiz_actual;
+        }
+        return predecesor(raiz_actual.derecha);
+    }
+
+    public Nodo sucesor(Nodo raiz_actual) {
+        if (raiz_actual.izquierda == null) {
+            return raiz_actual;
+        }
+        return predecesor(raiz_actual.izquierda);
     }
 }
