@@ -139,76 +139,36 @@ public class ArbolAVL {
         };
     }
 
-    public boolean eliminar(int numero) {
+    public Optional<Nodo> eliminar(int numero) {
         Nodo nodoEliminar;
         if (buscar(numero).isPresent()) {
             nodoEliminar = buscar(numero).get();
-            return eliminar(nodoEliminar, raiz);
+            return Optional.of(eliminar(nodoEliminar, numero));
         }
-        return false;
+        return Optional.empty();
     }
 
-    private boolean eliminar(Nodo nodoEliminar, Nodo lado) {
-        if (lado == null || nodoEliminar == null) return false;
+    private Nodo eliminar(Nodo actual, int valor) {
+        if (actual == null) return null;
 
-        //caso 1
-        if (lado == nodoEliminar && lado.izquierda == null && lado.derecha == null) {
-            raiz = null;
-            return true;
-        }
-
-        if (lado.izquierda == nodoEliminar && nodoEliminar.izquierda == null && nodoEliminar.derecha == null) {
-            lado.izquierda = null;
-            return true;
-        }
-
-        if (lado.derecha == nodoEliminar && nodoEliminar.izquierda == null && nodoEliminar.derecha == null) {
-            lado.derecha = null;
-            return true;
-        }
-
-        //caso 2
-        if (lado == nodoEliminar && nodoEliminar.izquierda != null && nodoEliminar.derecha == null) {
-            Nodo hijoTemp = nodoEliminar.izquierda;
-            nodoEliminar.setValor(hijoTemp.getValor());
-            nodoEliminar.izquierda = hijoTemp.izquierda;
-            nodoEliminar.derecha = hijoTemp.derecha;
-            return true;
-        }
-
-        if (lado == nodoEliminar && nodoEliminar.izquierda == null) {
-            Nodo hijo = nodoEliminar.derecha;
-            nodoEliminar.setValor(hijo.getValor());
-            nodoEliminar.izquierda = hijo.izquierda;
-            nodoEliminar.derecha = hijo.derecha;
-            return true;
-        }
-
-
-        //caso 3
-        if (lado == nodoEliminar) {
-            int op = Integer.parseInt(JOptionPane.showInputDialog("""
-                    1. Predecesor
-                    2. Sucesor
-                    """));
-
-            if (op == 1) {
-                lado = predecesor(lado.izquierda);
+        if (valor < actual.getValor()) {
+            actual.izquierda = eliminar(actual.izquierda, valor);
+        } else if (valor > actual.getValor()) {
+            actual.derecha = eliminar(actual.derecha, valor);
+        } else {
+            if (actual.izquierda == null || actual.derecha == null) {
+                actual = (actual.izquierda != null) ? actual.izquierda : actual.derecha;
             } else {
-                lado = sucesor(lado.derecha);
+                Nodo temp = sucesor(actual.derecha);
+                actual.setValor(temp.getValor());
+                actual.derecha = eliminar(actual.derecha, temp.getValor());
             }
-
-            nodoEliminar.setValor(lado.getValor());
-            nodoEliminar = lado;
-            lado = raiz;
-            eliminar(nodoEliminar, lado);
-            return true;
         }
 
+        if (actual == null) return null;
 
-        eliminar(nodoEliminar, lado.derecha);
-        eliminar(nodoEliminar, lado.izquierda);
-        return true;
+        actualizarMeta(actual);
+        return balancear(actual);
     }
 
     public Nodo predecesor(Nodo raiz_actual) {
@@ -222,6 +182,6 @@ public class ArbolAVL {
         if (raiz_actual.izquierda == null) {
             return raiz_actual;
         }
-        return predecesor(raiz_actual.izquierda);
+        return sucesor(raiz_actual.izquierda);
     }
 }

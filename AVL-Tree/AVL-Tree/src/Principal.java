@@ -7,12 +7,15 @@ public class Principal {
 
     public static void main(String[] args) {
         Principal principal = new Principal();
+        principal.probar();
+        principal.iniciar();
     }
 
     private void probar() {
         arbol.insertar(10);
         arbol.insertar(4);
         arbol.insertar(7);
+        arbol.insertar(8);
         arbol.insertar(16);
         arbol.insertar(19);
         arbol.insertar(11);
@@ -85,7 +88,10 @@ public class Principal {
 
     private void eliminarElemento() {
         int num = pedirNumero("Ingresa un valor a eliminar:");
-        var mensaje = arbol.eliminar(num);
+        var mensaje = arbol.eliminar(num)
+                .map(n -> "El dato " + num + " Ha sido eliminado")
+                .orElse("El dato " + num + " NO existe.");
+        mostrar(mensaje);
     }
 
     private void mostrarOperaciones() {
