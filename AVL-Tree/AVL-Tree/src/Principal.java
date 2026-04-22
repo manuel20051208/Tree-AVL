@@ -1,14 +1,14 @@
 import javax.swing.JOptionPane;
+import java.util.Optional;
 import java.util.function.IntPredicate;
 
 public class Principal {
 
-    private final ArbolAVL arbol = new ArbolAVL();
+    private static ArbolBinario arbol;
+    private static String treeName;
 
     public static void main(String[] args) {
-        Principal principal = new Principal();
-        principal.probar();
-        principal.iniciar();
+        new Principal().menuOpciones();
     }
 
     private void probar() {
@@ -24,7 +24,7 @@ public class Principal {
     private void iniciar() {
         int op;
         do {
-            op = pedirOpcion("""
+            op = pedirOpcion(treeName + """
                     Tree search AVL
                     ─────────────────────────
                     1. Input element
@@ -65,7 +65,7 @@ public class Principal {
 
         int op;
         do {
-            op = pedirOpcion("""
+            op = pedirOpcion(treeName + """
                     Tipo de recorrido
                     ─────────────────────
                     1. Preorden
@@ -97,9 +97,9 @@ public class Principal {
     private void mostrarOperaciones() {
         var positivos = contarPorCondicion(arbol.getRaiz(), n -> n > 0);
         var negativos = contarPorCondicion(arbol.getRaiz(), n -> n < 0);
-        var pares     = contarPorCondicion(arbol.getRaiz(), n -> n % 2 == 0);
+        var pares = contarPorCondicion(arbol.getRaiz(), n -> n % 2 == 0);
 
-        mostrar("""
+        mostrar(treeName + """
                 Operaciones sobre el árbol
                 ──────────────────────────────
                 Positivos : %d
@@ -114,6 +114,49 @@ public class Principal {
         return contador
                 + contarPorCondicion(nodo.izquierda, condicion)
                 + contarPorCondicion(nodo.derecha, condicion);
+    }
+
+    private void menuOpciones() {
+        int mensaje = 0;
+
+        do {
+            mensaje = pedirOpcion("""
+                            Opciones sobre
+                            1. Binary Tree
+                            2. AVL tree
+                            3. Leave
+                    """);
+
+            switch (mensaje) {
+                case 1 -> {
+                    arbol = new ArbolBinario();
+
+                    String chosen = "Binary Tree\n";
+                    treeName = chosen;
+
+                    probar();
+                    iniciar();
+                }
+                case 2 -> {
+                    arbol = new ArbolAVL();
+
+                    String chosen = "AVL Tree\n";
+                    treeName = chosen;
+
+                    probar();
+                    iniciar();
+                }
+                case 3 -> {
+                    String leave = "Ha cancelado hasta la proxima";
+                    probar();
+                    mostrar(leave);
+                }
+                default -> {
+                    String option = "Opcion invalida, vuele a intentarlo";
+                    mostrar(option);
+                }
+            }
+        } while (mensaje != 3);
     }
 
     private int pedirOpcion(String mensaje) {

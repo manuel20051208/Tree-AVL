@@ -1,13 +1,11 @@
-import javax.swing.*;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ArbolAVL {
-
-    public enum Recorrido {PREORDEN, INORDEN, POSORDEN}
+public class ArbolAVL extends ArbolBinario {
 
     private Nodo raiz;
 
+    @Override
     public Nodo getRaiz() {
         return raiz;
     }
@@ -16,23 +14,23 @@ public class ArbolAVL {
         return raiz == null;
     }
 
+    @Override
     public boolean insertar(int valor) {
         var insertado = new AtomicBoolean(false);
         raiz = insertar(raiz, valor, insertado);
         return insertado.get();
     }
 
+    @Override
     public Optional<Nodo> buscar(int valor) {
         return buscar(raiz, valor);
     }
 
-    public void recorrer(Recorrido tipo) {
-        System.out.printf("─── %s ───%n", tipo);
-        switch (tipo) {
-            case PREORDEN -> preorden(raiz);
-            case INORDEN -> inorden(raiz);
-            case POSORDEN -> posorden(raiz);
-        }
+    public Optional<Nodo> eliminarAVL(int valor) {
+        return buscar(valor).map(nodo -> {
+            raiz = eliminarAVL(raiz, valor);
+            return nodo;
+        });
     }
 
     private Nodo insertar(Nodo actual, int valor, AtomicBoolean insertado) {
@@ -41,12 +39,28 @@ public class ArbolAVL {
             return new Nodo(valor);
         }
 
-        if (valor < actual.getValor()) {
-            actual.izquierda = insertar(actual.izquierda, valor, insertado);
-        } else if (valor > actual.getValor()) {
-            actual.derecha = insertar(actual.derecha, valor, insertado);
-        } else {
-            return actual; // duplicado, no se inserta
+        if (valor < actual.getValor()) actual.izquierda = insertar(actual.izquierda, valor, insertado);
+        else if (valor > actual.getValor()) actual.derecha = insertar(actual.derecha, valor, insertado);
+        else return actual;
+
+        actualizarMeta(actual);
+        return balancear(actual);
+    }
+
+    private Nodo eliminarAVL(Nodo actual, int valor) {
+        if (actual == null) return null;
+
+        if (valor < actual.getValor()) actual.izquierda = eliminarAVL(actual.izquierda, valor);
+        else if (valor > actual.getValor()) actual.derecha = eliminarAVL(actual.derecha, valor);
+        else {
+            // Caso hoja o un solo hijo
+            if (actual.izquierda == null || actual.derecha == null)
+                return (actual.izquierda != null) ? actual.izquierda : actual.derecha;
+
+            // Dos hijos: reemplazar con sucesor in-order
+            var sucesor = sucesor(actual.derecha);
+            actual.setValor(sucesor.getValor());
+            actual.derecha = eliminarAVL(actual.derecha, sucesor.getValor());
         }
 
         actualizarMeta(actual);
@@ -54,20 +68,8 @@ public class ArbolAVL {
     }
 
     private Nodo balancear(Nodo p) {
-        if (p.fb > 1) {
-            var q = p.izquierda;
-            return (q.fb >= 0)
-                    ? rotarDerecha(p)         // Simple derecha
-                    : rotarDobleDerecha(p);   // Doble derecha
-        }
-
-        if (p.fb < -1) {
-            var q = p.derecha;
-            return (q.fb <= 0)
-                    ? rotarIzquierda(p)       // Simple izquierda
-                    : rotarDobleIzquierda(p); // Doble izquierda
-        }
-
+        if (p.fb > 1) return (p.izquierda.fb >= 0) ? rotarDerecha(p) : rotarDobleDerecha(p);
+        if (p.fb < -1) return (p.derecha.fb <= 0) ? rotarIzquierda(p) : rotarDobleIzquierda(p);
         return p;
     }
 
@@ -108,27 +110,6 @@ public class ArbolAVL {
         return (nodo == null) ? 0 : nodo.altura;
     }
 
-    private void preorden(Nodo actual) {
-        if (actual == null) return;
-        System.out.println(actual);
-        preorden(actual.izquierda);
-        preorden(actual.derecha);
-    }
-
-    private void inorden(Nodo actual) {
-        if (actual == null) return;
-        inorden(actual.izquierda);
-        System.out.println(actual);
-        inorden(actual.derecha);
-    }
-
-    private void posorden(Nodo actual) {
-        if (actual == null) return;
-        posorden(actual.izquierda);
-        posorden(actual.derecha);
-        System.out.println(actual);
-    }
-
     private Optional<Nodo> buscar(Nodo actual, int valor) {
         if (actual == null) return Optional.empty();
 
@@ -137,51 +118,5 @@ public class ArbolAVL {
             case -1 -> buscar(actual.izquierda, valor);
             default -> buscar(actual.derecha, valor);
         };
-    }
-
-    public Optional<Nodo> eliminar(int numero) {
-        Nodo nodoEliminar;
-        if (buscar(numero).isPresent()) {
-            nodoEliminar = buscar(numero).get();
-            return Optional.of(eliminar(nodoEliminar, numero));
-        }
-        return Optional.empty();
-    }
-
-    private Nodo eliminar(Nodo actual, int valor) {
-        if (actual == null) return null;
-
-        if (valor < actual.getValor()) {
-            actual.izquierda = eliminar(actual.izquierda, valor);
-        } else if (valor > actual.getValor()) {
-            actual.derecha = eliminar(actual.derecha, valor);
-        } else {
-            if (actual.izquierda == null || actual.derecha == null) {
-                actual = (actual.izquierda != null) ? actual.izquierda : actual.derecha;
-            } else {
-                Nodo temp = sucesor(actual.derecha);
-                actual.setValor(temp.getValor());
-                actual.derecha = eliminar(actual.derecha, temp.getValor());
-            }
-        }
-
-        if (actual == null) return null;
-
-        actualizarMeta(actual);
-        return balancear(actual);
-    }
-
-    public Nodo predecesor(Nodo raiz_actual) {
-        if (raiz_actual.derecha == null) {
-            return raiz_actual;
-        }
-        return predecesor(raiz_actual.derecha);
-    }
-
-    public Nodo sucesor(Nodo raiz_actual) {
-        if (raiz_actual.izquierda == null) {
-            return raiz_actual;
-        }
-        return sucesor(raiz_actual.izquierda);
     }
 }
