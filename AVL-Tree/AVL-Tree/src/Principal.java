@@ -1,10 +1,9 @@
 import javax.swing.JOptionPane;
-import java.util.Optional;
 import java.util.function.IntPredicate;
 
 public class Principal {
 
-    private static ArbolBinario arbol;
+    private static Arbol arbol;
     private static String treeName;
 
     public static void main(String[] args) {
@@ -24,8 +23,8 @@ public class Principal {
     private void iniciar() {
         int op;
         do {
-            op = pedirOpcion(treeName + """
-                    Tree search AVL
+            op = pedirOpcion(
+                    treeName + """
                     ─────────────────────────
                     1. Input element
                     2. Recorrer tree
@@ -150,6 +149,7 @@ public class Principal {
                     String leave = "Ha cancelado hasta la proxima";
                     probar();
                     mostrar(leave);
+
                 }
                 default -> {
                     String option = "Opcion invalida, vuele a intentarlo";
@@ -159,15 +159,15 @@ public class Principal {
         } while (mensaje != 3);
     }
 
-    private int pedirOpcion(String mensaje) {
+    private int pedirOpcion(Object mensaje) {
         return pedirNumero(mensaje);
     }
 
-    private int pedirNumero(String mensaje) {
+    private int pedirNumero(Object mensaje) {
         return Integer.parseInt(JOptionPane.showInputDialog(null, mensaje));
     }
 
-    private void mostrar(String mensaje) {
+    private void mostrar(Object mensaje) {
         JOptionPane.showMessageDialog(null, mensaje);
     }
 }

@@ -3,14 +3,15 @@ public class Nodo {
     Nodo izquierda;
     Nodo derecha;
     int altura;
-    int fb;
 
     public Nodo(int valor) {
         this.valor = valor;
         this.altura = 1;
     }
 
-    public int getValor() { return valor; }
+    public int getValor() {
+        return valor;
+    }
 
     public void setValor(int valor) {
         this.valor = valor;
@@ -18,6 +19,10 @@ public class Nodo {
 
     @Override
     public String toString() {
-        return "Nodo(%d | h=%d | fb=%d)".formatted(valor, altura, fb);
+        return String.format("Node(%d) -> [L: %s | R: %s]",
+                valor,
+                (izquierda != null ? izquierda.getValor() : "null"),
+                (derecha != null ? derecha.getValor() : "null")
+        );
     }
 }

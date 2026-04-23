@@ -2,16 +2,15 @@ import javax.swing.*;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ArbolBinario {
-
-    public enum Recorrido {PREORDEN, INORDEN, POSORDEN}
-
+public class ArbolBinario implements Arbol<Nodo> {
     private Nodo raiz;
 
+    @Override
     public Nodo getRaiz() {
         return raiz;
     }
 
+    @Override
     public boolean isEmpty() {
         return raiz == null;
     }
@@ -22,20 +21,19 @@ public class ArbolBinario {
         return insertado.get();
     }
 
-    public Optional<Nodo> buscar(int valor) {
-        return buscar(raiz, valor);
-    }
-
-    public void recorrer(ArbolAVL.Recorrido tipo) {
+    @Override
+    public void recorrer(Enum<Recorrido> tipo) {
         System.out.printf("─── %s ───%n", tipo);
         switch (tipo) {
-            case PREORDEN -> preorden(raiz);
-            case INORDEN -> inorden(raiz);
-            case POSORDEN -> posorden(raiz);
+            case Recorrido.PREORDEN -> preorden(raiz);
+            case Recorrido.INORDEN -> inorden(raiz);
+            case Recorrido.POSORDEN -> posorden(raiz);
+            default -> JOptionPane.showMessageDialog(null, "Error, opcion invalida");
         }
     }
 
-    private Nodo insertar(Nodo actual, int valor, AtomicBoolean insertado) {
+    @Override
+    public Nodo insertar(Nodo actual, int valor, AtomicBoolean insertado) {
         if (actual == null) {
             insertado.set(true);
             return new Nodo(valor);
@@ -52,37 +50,46 @@ public class ArbolBinario {
         return actual;
     }
 
-    private void actualizarMeta(Nodo nodo) {
+    @Override
+    public void actualizarMeta(Nodo nodo) {
         nodo.altura = 1 + Math.max(altura(nodo.izquierda), altura(nodo.derecha));
-        nodo.fb = altura(nodo.izquierda) - altura(nodo.derecha);
     }
 
-    private int altura(Nodo nodo) {
+    @Override
+    public int altura(Nodo nodo) {
         return (nodo == null) ? 0 : nodo.altura;
     }
 
-    private void preorden(Nodo actual) {
+    @Override
+    public void preorden(Nodo actual) {
         if (actual == null) return;
         System.out.println(actual);
         preorden(actual.izquierda);
         preorden(actual.derecha);
     }
 
-    private void inorden(Nodo actual) {
+    @Override
+    public void inorden(Nodo actual) {
         if (actual == null) return;
         inorden(actual.izquierda);
         System.out.println(actual);
         inorden(actual.derecha);
     }
 
-    private void posorden(Nodo actual) {
+    @Override
+    public void posorden(Nodo actual) {
         if (actual == null) return;
         posorden(actual.izquierda);
         posorden(actual.derecha);
         System.out.println(actual);
     }
 
-    private Optional<Nodo> buscar(Nodo actual, int valor) {
+    public Optional<Nodo> buscar(int valor) {
+        return buscar(raiz, valor);
+    }
+
+    @Override
+    public Optional<Nodo> buscar(Nodo actual, int valor) {
         if (actual == null) return Optional.empty();
 
         return switch (Integer.compare(valor, actual.getValor())) {
@@ -92,6 +99,7 @@ public class ArbolBinario {
         };
     }
 
+    @Override
     public Optional<Nodo> eliminar(int numero) {
         Nodo nodoEliminar;
         if (buscar(numero).isPresent()) {
@@ -101,7 +109,8 @@ public class ArbolBinario {
         return Optional.empty();
     }
 
-    private Nodo eliminar(Nodo actual, int valor) {
+    @Override
+    public Nodo eliminar(Nodo actual, int valor) {
         if (actual == null) return null;
 
         if (valor < actual.getValor()) {
@@ -121,6 +130,7 @@ public class ArbolBinario {
         return actual;
     }
 
+    @Override
     public Nodo predecesor(Nodo raiz_actual) {
         if (raiz_actual.derecha == null) {
             return raiz_actual;
@@ -128,6 +138,7 @@ public class ArbolBinario {
         return predecesor(raiz_actual.derecha);
     }
 
+    @Override
     public Nodo sucesor(Nodo raiz_actual) {
         if (raiz_actual.izquierda == null) {
             return raiz_actual;
